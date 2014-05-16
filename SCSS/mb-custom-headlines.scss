@@ -1,0 +1,203 @@
+@import "compass";
+
+$em-base: 16px !default;
+
+/* Working in ems is annoying. Think in pixels by using this handy function, emCalc(#) */
+@function emCalc($pxWidth) {
+  @return $pxWidth / $em-base * 1em;
+}
+
+// Custom Properties to Include
+/* 
+	* media_mode (t/f)
+	* headline_tag (h1, h2, etc.)
+	* thumb t/f
+	* thumb size 50/100/220/300/380/620/960
+	* lazy_load (t/f)
+	* thumb_float (left or right)
+	* caption t/f
+	* caption byline t/f
+	* headline t/f
+	* kicker t/f
+	* subheadline t/f
+	* tease t/f
+	* meta t/f
+		* diqus t/f
+		* meta_float left/right
+		* posted time t/f
+		* comment count t/f
+		* tags t/f
+		* label float left/right
+	
+*/
+
+// Variables
+
+$skinName: bdc-base;
+$baseunit: 15px;
+
+	// Fonts
+	$font-sans: 'Helvetica Neue',Helvetica,sans-serif;
+	$font-serif: 'PT Serif', Georgia, serif;
+	$font-kicker: $font-sans;
+	$font-headline: $font-serif;
+	$font-subheadline: $font-sans;
+	$font-caption: $font-sans;
+
+	// Colors
+	$color-border: #ddd;
+	$color-kicker: #900;
+	$color-subheadline: #666;
+	$color-headline: black;
+	$color-caption: white;
+	$color-caption-bg: #333;
+
+
+
+// Skin Styles
+
+.#{$skinName} {
+	.article {
+		@include box-sizing(border-box);
+		@include clearfix;
+		& + .article {
+			border-top: 1px solid $color-border;
+			margin-top: $baseunit;
+			padding-top: $baseunit;
+		}
+	}
+	.kicker,
+	.headline,
+	.subheadline {
+		padding: 0;
+		margin: 0;
+	}
+	.kicker {
+		color: $color-kicker;
+		font-family: $font-kicker;
+		text-transform: uppercase;
+		font-weight: 900;
+		line-height: 1em;
+		margin-bottom: $baseunit/4;
+	}
+	.headline {
+		font-family: $font-headline;
+		color: $color-headline;
+		line-height: 1.125em;
+		a {
+			color: inherit;
+			text-decoration: none;
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+	.subheadline {
+		font-weight: 400;
+		font-family: $font-subheadline;
+		color: $color-subheadline;
+		margin-top: $baseunit/2;
+		line-height: 1.125em;
+		font-size: emCalc(20px);
+	}
+	.tease {
+		margin-top: $baseunit/2;
+		line-height: 1.3em;
+		& * {
+			font-size: emCalc(16px);
+		}
+	}
+	.thumb {
+		position: relative;
+		&.pull-left {
+			margin-right: $baseunit;
+		}
+		&.pull-right {
+			margin-left: $baseunit;			
+		}
+		&.no-float {
+			width: 100%;
+			float: none;
+			margin-bottom: $baseunit;
+		}
+		.landscape, .portrait, .vertical {
+			padding: 0;
+			margin: 0;
+			max-width: 100%;
+		}
+		.caption {
+			line-height: 1.1em;
+			font-size: 12px;
+//			position: absolute;
+			bottom: 0;
+			margin: 0;
+			@include box-sizing(border-box);
+			padding: $baseunit/3;
+			color: $color-caption;
+			background: $color-caption-bg;
+		}
+		.byline {
+			@extend .caption;
+			text-align: right;
+		}
+	}
+	.meta {
+		font-size: 85%;
+		ul {
+			margin-bottom: 0;
+		}
+	}
+	.mb-media {
+		.thumb, .article-content {
+			display: table-cell;
+			vertical-align: top;
+		}
+		.thumb {
+			.pull-left {
+				margin-right: $baseunit;
+			}
+			.pull-right {
+				margin-left: $baseunit;
+			}
+		}
+	}
+	.sidebyside {
+		@include clearfix;
+		@include box-sizing(border-box);
+		.article {
+			float: left;
+			padding: 0 $baseunit/2 0 $baseunit/2;
+			img, .thumb {
+				max-width: 100%;
+			}
+			.thumb {
+				margin-bottom: $baseunit/2;
+			}
+			& + .article {
+				border: none;
+				margin: 0;
+			}
+			&:first-of-type {
+				padding-left: 0;
+			}
+			&:last-of-type {
+				padding-right: 0;
+			}
+		}
+	}
+	.lead-side-headline {
+		.article {
+			float: right;
+			clear:right;
+		}
+		.article.first-in-list {
+			float: left;
+			padding-right: $baseunit;
+		}
+		.article.list-position-2 {
+			margin-top: 0;
+			padding-top: 0;
+			border:none;
+		}
+	}
+}
