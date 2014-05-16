@@ -1,0 +1,218 @@
+[% b = this.block; c = b.custom; %]
+
+[% 
+/* 
+    * media_mode (t/f)
+    * headline_tag (h1, h2, etc.)
+    * thumb t/f
+    * thumb size 50/100/220/300/380/620/960
+    * lazy_load (t/f)
+    * thumb_float (left or right)
+    * caption t/f
+    * caption byline t/f
+    * headline t/f
+    * kicker t/f
+    * subheadline t/f
+    * tease t/f
+    * meta t/f
+        * diqus t/f
+        * meta_float left/right
+        * posted time t/f
+        * comment count t/f
+        * tags t/f
+        * label float left/right
+*/
+if c.lazy_load == true;
+    placeHolder = cms.page.cdn('components/core_external_jquery_plugins/resources/images/place_holder.png');   
+end;
+comments_disqus = core_base_library_getCustomProperty('disqus', 'boolean', false);
+if comments_disqus == true;
+    call cms.component.load('disqus');
+end;
+comments_facebook = core_base_library_getCustomProperty('custom_fb_comments','boolean',false);
+
+macro asset_kicker_display;
+    if asset.kicker && c.kicker == true; %]
+        <h6 class="kicker [%- if c.kicker_pos == "thumb"; echo ' aboveImage'; end; %]">[% asset.kicker | html | strip_tags %]</h6>
+    [% else if c.section_titles == true;
+        foreach asset.tags('section') as section,display;
+            if display | iterfirst; 
+                if section | contains('gallery') %]
+                    <h6 class="kicker sectionTitle [%- if c.kicker_pos == "thumb"; echo ' aboveImage'; end; %]">Gallery</h6>
+                [% else; %]
+                    <h6 class="kicker sectionTitle [%- if c.kicker_pos == "thumb"; echo ' aboveImage'; end; %]">[% echo display | replace('_',' ') | replace('-',' ') | replace('dailyfeatures','') | replace('whatsup',"What's Up") | replace('other local','') | replace('montana state university','MSU') | replace('yellowstone national park','Yellowstone') %]</h6>
+                [% end; %]
+            [% end;
+        end;
+    end;
+end;
+
+if b.assets | length > 0; /* length check */
+%]
+[% mb_block_title %]
+    [% if c.side_by_side != false; %]<div class="sidebyside">[% end; %]
+    [% foreach b.assets as asset;
+        thumb = core_base_library_assetThumb(asset,c.preview_size);
+        if thumb.height > 1.2 * thumb.width;
+            thumb.orientation = "vertical";
+        end; %]
+    <article class="clearfix article[% if c.media_mode == true; echo ' mb-media'; end; echo ' '; echo core_base_library_iterPosClasses(asset); echo ' '; echo core_base_library_serviceClasses(asset); echo ' '; foreach asset.tags('section') as section,display; if display | iterlast; echo display; else; echo display+' '; end; end; %]" id="[% asset.uuid %]" style="[% if c.side_by_side != false; echo 'width: ' + 100/c.columncount + '%;'; end; if c.maxHeight; echo 'max-height: ' + c.maxHeight + ';'; end; if c.fixedHeight; echo 'height: ' + c.fixedHeight + ';'; end; %]">
+            [% if c.kicker_pos == 'thumb'; asset_kicker_display; end; %]
+            [% if thumb.url && c.thumbnail != false; 
+                if thumb.orientation == "vertical" && c.hide_verticals == true; 
+                    return; 
+                else; %]
+                <div class="thumb [% c.thumbnail_float %]" style="background: [% c.matte_bg %]; width: [% if c.full_wide_images == true; echo '100%;'; else; echo thumb.width %]px;[% end; if c.maxImageHeight; %]height: [% c.maxImageHeight %]; overflow: hidden; position: relative;[% end %]">
+                    [% if c.lazy_load == true; %]
+                    <img class="blox-img-loader image [% thumb.orientation %]" title="[% thumb.title %]" alt="[% thumb.caption | html %]" src="[% placeHolder %]" data-original="[% thumb.url %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end; %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto;[% end; %]" />
+                    [% else %]
+                    <img src="[% thumb.url %]" class="[% thumb.orientation %]" title="[% thumb.title | strip_tags %]" alt="[% thumb.caption | html %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto;[% end; %]"  />
+                    [% end; /* lazyload check */ %]
+                    [% if c.caption != false; %]<p class="caption">[% thumb.caption | strip_tags | html %]</p>
+                    [% if c.caption_byline != false %]<p class="byline">[% thumb.byline | strip_tags | html %]</p>[% end; end; /* caption byline toggle *//* caption toggle */ %]
+                </div>
+                [% end; /* hide_verticals toggle */
+            end; /* thumb toggle */ %]
+            <div class="article-content">
+                    [% if asset.kicker || asset.subheadline || (asset.tags('section') && c.section_titles == true) %]<hgroup>[% end; %]
+                        [% if c.kicker_pos == 'headline'; asset_kicker_display; end; %]
+                            [% if c.headline != false;
+                                if c.headline_compensate == true && ( !thumb.url || (thumb.orientation == 'vertical' && c.hide_verticals == true) ); %]
+                                    <h[% if c.headline_tag > 2; echo c.headline_tag - 2; else; echo '1'; end; %] class="headline larger [% if asset.custom.webhed; echo 'webhed'; end; %]">
+                                        <a href="[% asset.url; mbtracking %]">
+                                            [% mb_asset_headline; %]
+                                        </a>
+                                    </h[% if c.headline_tag > 2; echo c.headline_tag - 2; else; echo '1'; end; %]>
+                                [% else; %]
+                                <h[% c.headline_tag %] class="headline [% if asset.custom.webhed; echo 'webhed'; end; %]">
+                                    <a href="[% asset.url; mbtracking %]">
+                                        [% if asset.custom.webhed; 
+                                            if c.omit;
+                                                echo asset.custom.webhed | html | strip_tags | replace(c.omit,'');
+                                            else;
+                                                echo asset.custom.webhed | html | strip_tags;
+                                            end;
+                                        else;
+                                            if c.omit;
+                                                echo asset.title | html | strip_tags | replace(c.omit,'');
+                                            else;
+                                                echo asset.title | html | strip_tags;
+                                            end;
+                                        end; %]
+                                    </a>
+                                </h[% c.headline_tag %]>
+                                [% end; /* headline compensate */ %]
+                            [% end; /* headline enabled */ %]
+                            [% if asset.subheadline && c.subheadline != false %]<h[% c.headline_tag + 1 %] class="subheadline">[% asset.subheadline | html | strip_tags %]</h[% c.headline_tag + 1 %]>[% end; %]
+                    [% if asset.kicker || asset.subheadline || (asset.tags('section') && c.section_titles == true) %]</hgroup>[% end; %]
+                    [% if c.tease != false %]<div class="tease">
+                        [% if asset.type == "event" %]
+                        <ul class="inline">
+                            <li><span class="icon-calendar fa fa-calendar"></span> [% asset.eventstarttime('l, M. j, g:i a') %]</li>
+                            [% if asset.venue_name %]<li><span class="icon-globe fa fa-globe"></span> [% echo asset.venue_name; if asset.venue_city; echo ', ' + asset.venue_city | titlecase; end; if asset.venue_state; echo ', ' + asset.venue_state | uppercase; end; %]</li>[% end; %]
+                        </ul>
+                        [% end;
+                        if c.full_content == true;
+                            if asset.type == 'event';
+                                    asset_content = asset.content;
+                            else; 
+                                    asset_content = asset.paragraphs; 
+                            end;
+                            foreach asset_content as paragraph;
+                                    echo paragraph | autolink;
+                            end;
+                        else;
+                            if asset.type == "event";
+                                core_base_library_leadIn(asset) | firstwords(50); 
+                            else;
+                                if c.truncate;
+                                    echo core_base_library_leadIn(asset) | firstwords(c.truncate,'...');
+                                else;
+                                    core_base_library_leadIn(asset); 
+                                end;
+                            end;
+                        end;
+                        %]
+                    </div>[% end; /* tease toggle */ %]
+                    [% if c.meta != false %]<div class="meta [% c.meta_float %]">
+                            <ul class="inline">
+                                    [% if c.flags != false %]<li class="[% c.flags_float %]">
+                                        [% if c.flag_new != false; 
+                                            if asset.lastupdated;
+                                                if cms.system.time('U') - asset.lastupdated('U') < 3600; /* if it is updated recently */ %]
+                                                <span class="label label-info">Updated</span>
+                                                [% end;
+                                            else if cms.system.time('U') - asset.starttime('U') < 3600; /* if it is new */ %]
+                                                <span class="label label-important">New</span>
+                                            [% end;
+                                        end; /* flag_new toggle */ %]
+                                        [% if c.service_classes != false; 
+                                            if c.flag_premium != false && core_base_library_serviceClasses(asset) | contains('premium') && asset.custom.disabletracker != true; %]
+                                            <span class="label label-warning">Premium</span>
+                                            [% else if c.flag_free != false && core_base_library_serviceClasses(asset) | contains('no-service'); %]
+                                            <span class="label label-success">Free Read</span>
+                                            [% else if c.flag_free != false && (asset.custom.disabletracker == true || asset.custom.metering_bypass == true); %]
+                                            <span class="label label-success">Free Read</span>
+                                            [% end; /* free-premium flag check */ %]
+                                        [% end; /* service classes toggle */ %]
+                                    </li>[% end; /* flags toggle */ %]
+                                    [% if c.posted_time != false && asset.type != "event" %]<li class="posted-time">
+                                            [% if asset.lastupdated %]
+                                                <span class="icon-time fa fa-clock-o"></span> Updated: 
+                                                    [% if cms.system.time('d') - 1 == asset.lastupdated('d') && asset.lastupdated('m/y') == cms.system.time('m/y'); /* if it was updated yesterday */ %]
+                                                        <time class="updated" datetime="[% asset.lastupdated('c') %]"><span class="value">Yesterday</span></time> 
+                                                    [% else if asset.lastupdated('d') < cms.system.time('d') && asset.lastupdated('m') == cms.system.time('m') || asset.lastupdated('m') < cms.system.time('m') || asset.lastupdated('y') < cms.system.time('y'); %]
+                                                        <time class="updated" datetime="[% asset.lastupdated('c') %]"><span class="value">[% echo asset.lastupdated('M. j, Y')  | replace('Mar.','March') | replace('Apr.','April') | replace('Jun.','June') | replace('Jul.','July') | replace('Sep.','Sept.') %]</span></time> 
+                                                    [% else; %]
+                                                        <time class="updated" datetime="[% asset.lastupdated('c') %]"><span class="value">[% echo asset.lastupdated('g:i a') | replace('am','a.m.') | replace('pm','p.m.') %]</span></time> 
+                                                    [% end; %]
+                                            [% else; %]
+                                                <span class="icon-time fa fa-clock-o"></span> Posted: 
+                                                    [% if cms.system.time('d') - 1 == asset.starttime('d') && asset.starttime('m/y') == cms.system.time('m/y'); /* if it was updated yesterday */ %]
+                                                        <time class="published" datetime="[% asset.starttime('c') %]"><span class="value">Yesterday</span></time> 
+                                                    [% else if asset.starttime('d') < cms.system.time('d') && asset.starttime('m') == cms.system.time('m') || asset.starttime('m') < cms.system.time('m') || asset.starttime('y') < cms.system.time('y'); %]
+                                                        <time class="published" datetime="[% asset.starttime('c') %]"><span class="value">[% echo asset.starttime('M. j, Y')  | replace('Mar.','March') | replace('Apr.','April') | replace('Jun.','June') | replace('Jul.','July') | replace('Sep.','Sept.') %]</span></time> 
+                                                    [% else; %]
+                                                        <time class="published" datetime="[% asset.starttime('c') %]"><span class="value">[% echo asset.starttime('g:i a') | replace('am','a.m.') | replace('pm','p.m.') %]</span></time> 
+                                                    [% end; %]
+                                            [% end; %]
+                                    </li>[% end; /* posted_time toggle */ %]
+                                    [% if c.comment_count != false && comments_disqus != true && comments_facebook != true && asset.type != "event" %]<li class="comment-count">
+                                            [% if asset.comments | length == 0;
+                                                 if c.show_empty_comments == true %]
+                                                    <span class="icon-comments fa fa-comments fa fa-comments"></span> <a href="[% asset.url %]?mode=comments">Add your comment</a>
+                                                 [% else;
+                                                     return;
+                                                 end;
+                                            else; %]
+                                            <span class="icon-comments fa fa-comments"></span> <a href="[% asset.url %]?mode=comments">[% echo asset.comments | length; %]</a>
+                                            [% end; %]
+                                    </li>[% else if c.comment_count != false && comments_disqus == true; %]<li class="comment-count">
+                                            <span class="icon-comments fa fa-comments"></span> [% disqus_comment_count(asset); %]
+                                    </li>[% else if c.comment_count != false && comments_facebook == true; %]<li class="comment-count">
+                                            <span class="icon-comments fa fa-comments"></span> <fb:comments-count href=[% asset.url('absolute':true) %]></fb:comments-count> comments
+                                    </li>[% end; /* comment_count toggle */ %]
+                                    [% if c.tags != false %]<li class="tags">
+                                            <span class="icon-tag fa fa-tag"></span> <a href="#">agriculture</a>, <a href="#">hail</a>, <a href="#">weather</a>, <a href="#">crops</a>
+                                    </li>[% end; /* tags toggle */ 
+                                    c.related = true; %]
+                            </ul>
+                    </div>[% end; /* meta toggle */ %]
+            </div>
+            [% if c.related_items == true;
+                if asset.items('type':'article','relationship':'sibling');
+                    echo '<ul class="inline" style="font-size: 85%; margin: 0; clear: both;">'; 
+                    foreach asset.items('type':'article','relationship':'sibling') as arelated;
+                        if arelated | iterpos < c.related_number; %]
+                            <li style="line-height: 1.125em;">
+                                <strong style="color: #666;"><span class="icon-plus fa fa-plus"></span> Related Story:</strong> <a href="[% arelated.url %]">[% arelated.title %]</a>
+                            </li>
+                        [% end;
+                        end;
+                    echo '</ul>';
+                end;                                    
+            end; %]
+    </article>
+    [% end; /* end loop */ %]
+    [% if c.side_by_side != false; %]</div><!-- end .sidebyside -->[% end; %]
+[% end; /* length check */ %]
