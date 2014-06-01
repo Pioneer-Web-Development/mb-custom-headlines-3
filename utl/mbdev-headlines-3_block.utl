@@ -48,8 +48,10 @@ macro asset_kicker_display;
 end;
 
 if b.assets | length > 0; /* length check */
-%]
-[% mb_block_title %]
+if c.css_classes %]
+<div class="[% c.css_classes %]">
+[% end;
+mb_block_title %]
     [% if c.side_by_side != false; %]<div class="sidebyside">[% end; %]
     [% foreach b.assets as asset;
         thumb = core_base_library_assetThumb(asset,c.preview_size);
@@ -215,4 +217,5 @@ if b.assets | length > 0; /* length check */
     </article>
     [% end; /* end loop */ %]
     [% if c.side_by_side != false; %]</div><!-- end .sidebyside -->[% end; %]
+    [% if c.css_classes %]</div><!-- custom classes wrapper -->[% end; %]
 [% end; /* length check */ %]
