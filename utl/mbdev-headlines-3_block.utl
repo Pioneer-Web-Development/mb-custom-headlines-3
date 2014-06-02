@@ -1,4 +1,10 @@
-[% b = this.block; c = b.custom; %]
+[% 
+/* 
+Version 1.2.4 
+Last modified: Jun 2, 2014
+*/
+
+b = this.block; c = b.custom; %]
 
 [% 
 /* 
@@ -66,9 +72,9 @@ mb_block_title %]
                 else; %]
                 <div class="thumb [% c.thumbnail_float %]" style="background: [% c.matte_bg %]; width: [% if c.full_wide_images == true; echo '100%;'; else; echo thumb.width %]px;[% end; if c.maxImageHeight; %]height: [% c.maxImageHeight %]; overflow: hidden; position: relative;[% end %]">
                     [% if c.lazy_load == true; %]
-                    <img class="blox-img-loader image [% thumb.orientation %]" title="[% thumb.title %]" alt="[% thumb.caption | html %]" src="[% placeHolder %]" data-original="[% thumb.url %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end; %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto;[% end; %]" />
+                    <img class="blox-img-loader image [% thumb.orientation %]" title="[% thumb.title %]" alt="[% thumb.caption | html %]" src="[% placeHolder %]" data-original="[% thumb.url %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end; %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto; max-width: 100%;[% end; %]" />
                     [% else %]
-                    <img src="[% thumb.url %]" class="[% thumb.orientation %]" title="[% thumb.title | strip_tags %]" alt="[% thumb.caption | html %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto;[% end; %]"  />
+                    <img src="[% thumb.url %]" class="[% thumb.orientation %]" title="[% thumb.title | strip_tags %]" alt="[% thumb.caption | html %]" style="[% if c.maxImageHeight && thumb.orientation == 'vertical'; %]position: relative; bottom: [% if asset.custom.vertical_adjust; echo asset.custom.vertical_adjust; else; %]55%[% end %]; [% elseif c.maxImageHeight && thumb.orientation == 'landscape';%]height: 100%;[% end; %] [% if c.full_wide_images == true; %]display:block; margin: 0 auto; max-width: 100%[% end; %]"  />
                     [% end; /* lazyload check */ %]
                     [% if c.caption != false; %]<p class="caption">[% thumb.caption | strip_tags | html %]</p>
                     [% if c.caption_byline != false %]<p class="byline">[% thumb.byline | strip_tags | html %]</p>[% end; end; /* caption byline toggle *//* caption toggle */ %]
@@ -217,5 +223,12 @@ mb_block_title %]
     </article>
     [% end; /* end loop */ %]
     [% if c.side_by_side != false; %]</div><!-- end .sidebyside -->[% end; %]
+    [% if c.more_link; %]
+        <div class="more-link clearfix" style="margin-top: 1em;">
+            <a href="[% c.more_link %]" class="[% if c.more_link_button == true %]btn btn-[% echo c.more_link_color; if c.more_link_mini == true; %] btn-mini [% end; end; echo ' '+c.more_link_align %]">
+                [% if c.more_link_icon && c.more_link_icon_pos == 'left'; %]<span class="fa [% c.more_link_icon %]"></span> [% end; c.more_link_text; if c.more_link_icon && c.more_link_icon_pos == 'right'; %] <span class="fa [% c.more_link_icon %]"></span>[% end; %]
+            </a>
+        </div><!-- .more-link -->
+    [% end %]
     [% if c.css_classes %]</div><!-- custom classes wrapper -->[% end; %]
 [% end; /* length check */ %]
