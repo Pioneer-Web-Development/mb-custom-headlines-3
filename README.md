@@ -1,5 +1,7 @@
-MB Custom Headlines 3
-=====================
+DEPRECATED | MB Custom Headlines 3
+==================================
+
+*This template was designed for Blox Zen templates and will not work with Flex.*
 
 ##Version 1.2.4 - Jun 2, 2014##
 
